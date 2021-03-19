@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="./xorShift.js"></script>
+  <title>Document</title>
+  <style>
+      .header_container {
+          width: 70%;
+          margin: auto auto 10px auto;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+      }
+
+      .title {
+          display: flex;
+          text-decoration: solid;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          width: 100%;
+          font-size: 19px;
+      }
+  </style>
+</head>
+<body>
+  <div class="header_container">
+      <div class="title">
+        <p>Shuffle Card</p>
+      </div>
+
+      <div>
+          <input type="number" min="1" max="10000" class="limit">
+          <button class="xorshift_btn">Test xorshift</button>
+          <button class="js_random_btn">Test js Random</button>
+
+          <div>
+              <span class="start_time"></span>
+              <span class="end_time"></span>
+              <span class="execution_time"></span>
+          </div>
+          <div class="report_container"></div>
+      </div>
+  </div>
+
+  <script>
+    const limit = document.querySelector(".limit");
+    const xOrShiftBtn = document.querySelector(".xorshift_btn");
+    const jsRandomBtn = document.querySelector(".js_random_btn");
+    const startTime = document.querySelector(".start_time");
+    const endTime = document.querySelector(".end_time");
+    const executionTime = document.querySelector(".execution_time");
+    const reportContainer = document.querySelector(".report_container");
+
+    let table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.marginTop = '10px';
+    table.style.borderCollapse = 'collapse';
+    table.setAttribute('border', '1');
+
+    let metric = [];
+    let header = ["Algorithm Name", "Time Started", "Time Ended", "Total time"];
+    let temp;
+
+    let checkXorShift = false;
+    let checkJsRandom = false;
+    let checkWell512a = false;
+
+    xOrShiftBtn.addEventListener("click", () => {
+      const maxLimit = limit.value;
+      if ((temp > 0 && temp !== maxLimit) && (!checkXorShift || !checkJsRandom || !checkWell512a)) {
+        dialogBox();
+      } else {
+        if (maxLimit < 1 || isNaN(maxLimit)) {
+          alert("Please, put in a valid number");
+        } else {
+          testXorShift(maxLimit);
+          checkXorShift = true;
+          temp = maxLimit;
+        }
+      }
+    });
+
+    jsRandomBtn.addEventListener("click", () => {
+      const maxLimit = limit.value
+      if ((temp > 0 && temp !== maxLimit) && (!checkXorShift || !checkJsRandom || !checkWell512a)) {
+        dialogBox();
+      } else {
+        if (maxLimit < 1 || isNaN(maxLimit)) {
+          alert("Please, put in a valid number");
+        } else {
+          testJsRandom(maxLimit)
+          checkJsRandom = true;
+          temp = maxLimit;
+        }
+      }
+    });
+
+    const dialogBox = () => {
+      let response = confirm("Warning! you trying to test for another round without testing for the last round?")
+      if (response) {
+        limit.value = "";
+        temp = 0;
+        metric = [];
+        buildUI(metric);
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    const testXorShift = (maxLimit) => {
+      let metricData = {}
+      const start = performance.now();
+      for (let i = 0; i < maxLimit; i++) {
+        xOrShift();
+      }
+      const end = performance.now();
+      const executionTime = end - start;
+      metricData["algorithm"] = "XorShift";
+      metricData["start time"] = start + "ms";
+      metricData["end time"] = end + "ms";
+      metricData["execution time"] = executionTime + "ms";
+      metric.push(metricData);
+      buildUI(metric);
+    }
+
+    const testJsRandom = (maxLimit) => {
+      let metricData = {}
+      const start = performance.now();
+
+      for (let i = 0; i < maxLimit; i++) {
+        Math.random();
+      }
+      const end = performance.now();
+      
+      const execTime = end - start;
+      
+      metricData["algorithm"] = "Js Random";
+      metricData["start time"] = start + "ms";
+      metricData["end time"] = end + "ms";
+      metricData["execution time"] = execTime + "ms";
+      metric.push(metricData);
+      buildUI(metric);
+    }
+
+    const buildUI = (data) => {
+      table.innerHTML = "";
+      let tableBody = document.createElement('tbody');
+      let headerRow = document.createElement('tr');
+      // create header for the table
+      for (let i = 0; i < header.length; i++) {
+        let tableHeader = document.createElement('th');
+        tableHeader.appendChild(document.createTextNode(header[i]));
+        headerRow.appendChild(tableHeader);
+      }
+      tableBody.appendChild(headerRow);
+      for (let i = 0; i < data.length; i++) {
+        let tableRow = document.createElement('tr');
+        // populate the table rows with the metric data
+        for (info in data[i]) {
+          let tableData = document.createElement('td');
+          tableData.appendChild(document.createTextNode(data[i][info]));
+          tableRow.appendChild(tableData);
+        }
+        tableBody.appendChild(tableRow);
+      }
+      table.appendChild(tableBody);
+      reportContainer.appendChild(table);
+    }
+  </script>
+</body>
+</html>
