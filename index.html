@@ -5,9 +5,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="./xorShift.js"></script>
-  <title>Document</title>
+  <title>Shuffle Card</title>
   <style>
-      .header_container {
+      .container {
           width: 70%;
           margin: auto auto 10px auto;
           display: flex;
@@ -28,7 +28,7 @@
   </style>
 </head>
 <body>
-  <div class="header_container">
+  <div class="container">
       <div class="title">
         <p>Shuffle Card</p>
       </div>
@@ -38,11 +38,6 @@
           <button class="xorshift_btn">Test xorshift</button>
           <button class="js_random_btn">Test js Random</button>
 
-          <div>
-              <span class="start_time"></span>
-              <span class="end_time"></span>
-              <span class="execution_time"></span>
-          </div>
           <div class="report_container"></div>
       </div>
   </div>
@@ -51,9 +46,6 @@
     const limit = document.querySelector(".limit");
     const xOrShiftBtn = document.querySelector(".xorshift_btn");
     const jsRandomBtn = document.querySelector(".js_random_btn");
-    const startTime = document.querySelector(".start_time");
-    const endTime = document.querySelector(".end_time");
-    const executionTime = document.querySelector(".execution_time");
     const reportContainer = document.querySelector(".report_container");
 
     let table = document.createElement('table');
@@ -72,11 +64,19 @@
 
     xOrShiftBtn.addEventListener("click", () => {
       const maxLimit = limit.value;
-      if ((temp > 0 && temp !== maxLimit) && (!checkXorShift || !checkJsRandom || !checkWell512a)) {
-        dialogBox();
+      if (temp > 0 && temp !== maxLimit) {
+          if (!checkXorShift || !checkJsRandom || !checkWell512a) {
+              dialogBox();
+          } else {
+              temp = 0;
+              metric = [];
+              checkXorShift = false;
+              checkJsRandom = false;
+              checkWell512a = false;
+          }
       } else {
-        if (maxLimit < 1 || isNaN(maxLimit)) {
-          alert("Please, put in a valid number");
+        if (maxLimit < 1 || isNaN(maxLimit) || maxLimit > 10000) {
+          alert("Please, put in a valid number and the number should be between 1 - 10000");
         } else {
           testXorShift(maxLimit);
           checkXorShift = true;
@@ -87,11 +87,19 @@
 
     jsRandomBtn.addEventListener("click", () => {
       const maxLimit = limit.value
-      if ((temp > 0 && temp !== maxLimit) && (!checkXorShift || !checkJsRandom || !checkWell512a)) {
-        dialogBox();
+      if (temp > 0 && temp !== maxLimit) {
+          if (!checkXorShift || !checkJsRandom || !checkWell512a) {
+              dialogBox();
+          } else {
+              temp = 0;
+              metric = [];
+              checkXorShift = false;
+              checkJsRandom = false;
+              checkWell512a = false;
+          }
       } else {
-        if (maxLimit < 1 || isNaN(maxLimit)) {
-          alert("Please, put in a valid number");
+        if (maxLimit < 1 || isNaN(maxLimit) || maxLimit > 10000) {
+          alert("Please, put in a valid number and the number should be between 1 - 10000");
         } else {
           testJsRandom(maxLimit)
           checkJsRandom = true;
@@ -106,6 +114,9 @@
         limit.value = "";
         temp = 0;
         metric = [];
+        checkXorShift = false;
+        checkJsRandom = false;
+        checkWell512a = false;
         buildUI(metric);
         return true;
       } else {
